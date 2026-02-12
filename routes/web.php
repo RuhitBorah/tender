@@ -94,12 +94,16 @@ Route::middleware('auth')->group(function () {
             $recentTenders = \App\Models\Tender::with('district')->latest()->take(5)->get();
             $tendersByDistrict = \App\Models\District::withCount('tenders')->orderByDesc('tenders_count')->take(5)->get();
             $recentUsers = \App\Models\User::latest()->take(5)->get();
+            $districts = \App\Models\District::with('subdistricts')->get();
 
-            return view('admin.dashboard', compact('stats', 'recentTenders', 'tendersByDistrict', 'recentUsers'));
+            return view('admin.dashboard', compact('stats', 'recentTenders', 'tendersByDistrict', 'recentUsers', 'districts'));
         })->name('dashboard');
 
         // Page Views
-        Route::view('/tenders', 'admin.tenders')->name('tenders');
+        Route::get('/tenders', function () {
+            $districts = \App\Models\District::with('subdistricts')->get();
+            return view('admin.tenders', compact('districts'));
+        })->name('tenders');
         Route::get('/users', function () {
             $stats = [
                 'total_users' => \App\Models\User::count(),
@@ -109,7 +113,6 @@ Route::middleware('auth')->group(function () {
             return view('admin.users', compact('stats'));
         })->name('users');
         Route::view('/locations', 'admin.locations')->name('locations');
-        Route::view('/tenders/create', 'admin.tenders.create')->name('tenders.create'); // Assuming this view exists or will be created
 
         // Admin API Routes (internal use for Alpine.js)
         Route::prefix('api')->name('api.')->group(function () {

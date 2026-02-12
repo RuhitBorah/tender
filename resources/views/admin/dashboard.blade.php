@@ -1,6 +1,8 @@
 <x-app-layout>
-    <div class="min-h-screen bg-gray-50 pb-12">
+    <div class="min-h-screen bg-gray-50 pb-12" x-data="dashboardManager()" x-init="init()">
         
+        <x-toast-notification />
+        <x-create-tender-modal :districts="$districts" />
         <!-- Hero Section -->
         <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -10,13 +12,13 @@
                         <p class="mt-2 text-indigo-200 text-sm">Welcome back, Admin. Here's what's happening today.</p>
                     </div>
                     <div class="flex gap-3">
-                        <a href="{{ route('admin.tenders.create') }}" 
+                        <button @click="createOpen = true" 
                            class="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl font-medium transition-all shadow-lg hover:shadow-xl flex items-center gap-2 group">
                             <div class="bg-indigo-500 rounded-lg p-1 group-hover:scale-110 transition-transform">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
                             <span>Create Tender</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -229,4 +231,80 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        function dashboardManager() {
+            return {
+                createOpen: false,
+                toastShow: false,
+                toastMessage: '',
+                toastType: 'success',
+                districts: @json($districts),
+                newTender: {
+                    tender_no: '',
+                    title: '',
+                    description: '',
+                    department: '',
+                    state: 'Assam',
+                    district_id: '',
+                    subdistrict_id: '',
+                    publish_date: '',
+                    closing_date: '',
+                    value: '',
+                    status: 'draft'
+                },
+
+                init() {
+                    // Initialize if needed
+                },
+
+                submitCreate() {
+                    // Validation: If district has subdistricts, subdistrict must be selected
+                    if (this.newTender.district_id) {
+                        const selectedDistrict = this.districts.find(d => d.id == this.newTender.district_id);
+                        if (selectedDistrict && selectedDistrict.subdistricts && selectedDistrict.subdistricts.length > 0) {
+                            if (!this.newTender.subdistrict_id) {
+                                this.showToast('Please select a subdistrict.', 'error');
+                                return;
+                            }
+                        }
+                    }
+
+                    fetch('/admin/api/tenders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.newTender)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.showToast('Tender created successfully!', 'success');
+                        this.createOpen = false;
+                        // Reset form
+                        this.newTender = {
+                            tender_no: '', title: '', description: '', department: '', state: 'Assam',
+                            district_id: '', subdistrict_id: '', publish_date: '', closing_date: '', value: '', status: 'draft'
+                        };
+                        // Refresh page after a delay to show the new tender in the "Recent Tenders" list
+                        setTimeout(() => window.location.reload(), 1500);
+                    })
+                    .catch(error => {
+                        this.showToast('Failed to create tender.', 'error');
+                    });
+                },
+
+                showToast(message, type = 'success') {
+                    this.toastMessage = message;
+                    this.toastType = type;
+                    this.toastShow = true;
+                    setTimeout(() => { this.toastShow = false; }, 3500);
+                }
+            }
+        }
+    </script>
+    @endpush
 </x-app-layout>

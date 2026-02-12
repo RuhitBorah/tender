@@ -9,7 +9,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard', ['username' => \Illuminate\Support\Str::slug(Auth::user()->name)]) }}" class="group flex items-center gap-2">
+                    <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('dashboard', ['username' => \Illuminate\Support\Str::slug(Auth::user()->name)]) }}" class="group flex items-center gap-2">
                         <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-lg group-hover:shadow-indigo-500/30 group-hover:scale-105 transition-all duration-300">
                              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                         </div>
