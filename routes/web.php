@@ -74,12 +74,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Admin Routes — guarded by role check middleware
-    Route::prefix('admin')->name('admin.')->middleware(['auth', function ($request, $next) {
-        if ($request->user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-        return $next($request);
-    }])->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->group(function () {
         
         // Dashboard
         Route::get('/dashboard', function () {
