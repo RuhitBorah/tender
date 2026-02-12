@@ -221,7 +221,7 @@
                                     saveTender(id) {
                                         const username = "{{ \Illuminate\Support\Str::slug(Auth::user()->name) }}";
                                         
-                                        axios.put(`/${username}/tenders/${id}`, this.formData)
+                                        axios.put(`/tenders/${id}`, this.formData)
                                             .then(response => {
                                                 // Update local data
                                                 this.tenders[id] = response.data.tender;

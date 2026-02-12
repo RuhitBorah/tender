@@ -49,6 +49,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Block login if user has requested account deletion
+        if (Auth::user()->deletion_requested_at) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account deletion request is pending. Please contact the administrator if you wish to cancel it.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
