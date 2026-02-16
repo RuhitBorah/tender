@@ -239,7 +239,9 @@ Route::middleware('auth')->group(function () {
 
             // Locations API
             Route::get('/districts', function () {
-                return \App\Models\District::with('subdistricts')->get();
+                return \App\Models\District::with(['subdistricts' => function($query) {
+                    $query->withCount(['users', 'tenders']);
+                }])->withCount(['subdistricts', 'users', 'tenders'])->get();
             });
 
             // Alias for users page which fetches /admin/api/locations
@@ -289,7 +291,24 @@ Route::middleware('auth')->group(function () {
                 return response()->json(['message' => 'Deleted']);
             });
         });
+
+        // District Excel View: /admin/{district}/tender
+        Route::prefix('{district:name}')->name('locations.excel.')->group(function () {
+            Route::get('/tender', [App\Http\Controllers\LocationExcelController::class, 'index'])->name('index');
+            Route::post('/tender/update', [App\Http\Controllers\LocationExcelController::class, 'update'])->name('update');
+            Route::post('/tender/import', [App\Http\Controllers\LocationExcelController::class, 'import'])->name('import');
+            Route::get('/tender/export', [App\Http\Controllers\LocationExcelController::class, 'export'])->name('export');
+        });
+
+        // Subdistrict Excel View: /admin/{district}/{subdistrict}/tender
+        Route::prefix('{district:name}/{subdistrict:name}')->name('locations.subdistrict.excel.')->scopeBindings()->group(function () {
+            Route::get('/tender', [App\Http\Controllers\LocationExcelController::class, 'indexSubdistrict'])->name('index');
+            Route::post('/tender/update', [App\Http\Controllers\LocationExcelController::class, 'updateSubdistrict'])->name('update');
+            Route::post('/tender/import', [App\Http\Controllers\LocationExcelController::class, 'importSubdistrict'])->name('import');
+            Route::get('/tender/export', [App\Http\Controllers\LocationExcelController::class, 'exportSubdistrict'])->name('export');
+        });
+        });
     });
-});
+
 
 require __DIR__.'/auth.php';
