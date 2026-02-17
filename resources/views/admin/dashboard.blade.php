@@ -1,10 +1,10 @@
-<x-app-layout>
+<x-app-layout :padding="false">
     <div class="min-h-screen bg-gray-50 pb-12" x-data="dashboardManager()" x-init="init()">
         
         <x-toast-notification />
         <x-create-tender-modal :districts="$districts" />
         <!-- Hero Section -->
-        <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-12">
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-32">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>

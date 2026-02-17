@@ -78,26 +78,26 @@
                     <table class="w-full text-sm text-left">
                         <thead class="bg-gray-100 text-gray-600 font-medium border-b border-gray-200">
                             <tr>
-                                <th class="px-4 py-3 w-10">#</th>
-                                <th class="px-4 py-3 min-w-[120px]">Tender No</th>
-                                <th class="px-4 py-3 min-w-[200px]">Title</th>
+                                <th class="px-4 py-3 w-16 whitespace-nowrap">ID</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Tender No</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Title</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Description</th>
+                                <th class="px-4 py-3 whitespace-nowrap">District Name</th>
                                 
-                                @if(!isset($subdistrict))
-                                    <th class="px-4 py-3 min-w-[150px]">Subdistrict</th>
-                                @endif
+                                <th class="px-4 py-3 whitespace-nowrap">Subdistrict</th>
 
-                                <th class="px-4 py-3 min-w-[150px]">Department</th>
-                                <th class="px-4 py-3 min-w-[120px]">Value</th>
-                                <th class="px-4 py-3 min-w-[140px]">Publish Date</th>
-                                <th class="px-4 py-3 min-w-[140px]">Closing Date</th>
-                                <th class="px-4 py-3 min-w-[120px]">Status</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Department</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Amount</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Publish Date</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Closing Date</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Status</th>
                                 <th class="px-4 py-3 w-10"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <template x-for="(row, index) in rows" :key="row._key">
                                 <tr :class="{'bg-red-50': row.deleted, 'bg-yellow-50': row.isDirty && !row.deleted}" class="hover:bg-gray-50">
-                                    <td class="px-4 py-2 text-gray-500" x-text="index + 1"></td>
+                                    <td class="px-4 py-2 text-gray-500" x-text="row.id ? row.id : 'Auto'"></td>
                                     
                                     <td class="p-0">
                                         <input type="text" x-model="row.tender_no" @input="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
@@ -107,16 +107,26 @@
                                         <input type="text" x-model="row.title" @input="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
                                     </td>
 
-                                    @if(!isset($subdistrict))
-                                        <td class="p-0">
+                                    <td class="p-0">
+                                        <input type="text" x-model="row.description" @input="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
+                                    </td>
+
+                                    <td class="px-4 py-2 text-gray-500">
+                                        {{ $district->name }}
+                                    </td>
+
+                                    <td class="p-0">
+                                        @if(isset($subdistrict))
+                                            <div class="px-4 py-2 text-gray-500">{{ $subdistrict->name }}</div>
+                                        @else
                                             <select x-model="row.subdistrict_id" @change="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
-                                                <option value="">- District Level -</option>
+                                                <option value="">- Select -</option>
                                                 @foreach($district->subdistricts as $sub)
                                                     <option value="{{ $sub->id }}">{{ $sub->name }}</option>
                                                 @endforeach
                                             </select>
-                                        </td>
-                                    @endif
+                                        @endif
+                                    </td>
 
                                     <td class="p-0">
                                         <input type="text" x-model="row.department" @input="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
@@ -135,7 +145,7 @@
                                     </td>
 
                                     <td class="p-0">
-                                        <select x-model="row.status" @change="markDirty(row)" class="w-full h-full px-4 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
+                                        <select x-model="row.status" @change="markDirty(row)" class="w-full h-full pl-4 pr-8 py-2 border-none bg-transparent focus:ring-2 focus:ring-inset focus:ring-indigo-500" :disabled="row.deleted">
                                             <option value="draft">Draft</option>
                                             <option value="active">Active</option>
                                             <option value="closed">Closed</option>
@@ -144,8 +154,11 @@
                                         </select>
                                     </td>
 
-                                    <td class="px-2 text-center">
-                                        <button @click="toggleDelete(row)" class="text-gray-400 hover:text-red-600 transition">
+                                    <td class="px-2 text-center flex items-center justify-center space-x-2">
+                                        <button @click="openPreview(row)" class="text-gray-400 hover:text-blue-600 transition" title="Preview">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </button>
+                                        <button @click="toggleDelete(row)" class="text-gray-400 hover:text-red-600 transition" title="Delete">
                                             <svg x-show="!row.deleted" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             <svg x-show="row.deleted" class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m0 0l-5 5m5-5l5-5m-5 5l5 5"></path></svg>
                                         </button>
@@ -158,6 +171,74 @@
             </div>
         </div>
 
+        <!-- Preview Modal -->
+        <div x-show="previewModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="previewModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closePreview()"></div>
+
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                <div x-show="previewModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    Tender Details
+                                </h3>
+                                <div class="mt-4 grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Tender No</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.tender_no || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Title</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.title || '-'"></div>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.description || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">District</label>
+                                        <div class="mt-1 text-sm text-gray-900">{{ $district->name }}</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Subdistrict</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="getPreviewSubdistrict(previewData.subdistrict_id)"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.department || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.value || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Publish Date</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.publish_date || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Closing Date</label>
+                                        <div class="mt-1 text-sm text-gray-900" x-text="previewData.closing_date || '-'"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Status</label>
+                                        <div class="mt-1 text-sm text-gray-900 capitalize" x-text="previewData.status || '-'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" @click="closePreview()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('excelGrid', () => ({
@@ -165,6 +246,9 @@
                     originalData: @json($tenders),
                     unsavedChanges: false,
                     saveUrl: "{{ isset($subdistrict) ? route('admin.locations.subdistrict.excel.update', [$district, $subdistrict]) : route('admin.locations.excel.update', $district) }}",
+                    subdistricts: @json($district->subdistricts),
+                    previewModalOpen: false,
+                    previewData: {},
 
                     init() {
                         // Initialize rows from tenders data
@@ -184,6 +268,7 @@
                             id: null,
                             tender_no: '',
                             title: '',
+                            description: '',
                             subdistrict_id: '{{ isset($subdistrict) ? $subdistrict->id : "" }}', // Auto-set subdistrict if in context
                             department: '',
                             value: '',
@@ -204,6 +289,22 @@
                     toggleDelete(row) {
                         row.deleted = !row.deleted;
                         this.markDirty(row);
+                    },
+
+                    openPreview(row) {
+                        this.previewData = { ...row };
+                        this.previewModalOpen = true;
+                    },
+
+                    closePreview() {
+                        this.previewModalOpen = false;
+                        this.previewData = {};
+                    },
+
+                    getPreviewSubdistrict(id) {
+                        if (!id) return '-';
+                        const sub = this.subdistricts.find(s => s.id == id);
+                        return sub ? sub.name : '-';
                     },
 
                     saveChanges() {

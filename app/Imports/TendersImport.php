@@ -32,9 +32,14 @@ class TendersImport implements ToModel, WithHeadingRow, WithValidation
         
         if ($this->targetSubdistrict) {
             $subdistrictId = $this->targetSubdistrict->id;
-        } elseif (!empty($row['subdistrict_name'])) {
-            $name = strtolower(trim($row['subdistrict_name']));
-            $subdistrictId = $this->subdistricts[$name] ?? null;
+        } else {
+            // Check for 'subdistrict_name' or 'subdistrict'
+            $nameRaw = $row['subdistrict_name'] ?? $row['subdistrict'] ?? null;
+            
+            if (!empty($nameRaw)) {
+                $name = strtolower(trim($nameRaw));
+                $subdistrictId = $this->subdistricts[$name] ?? null;
+            }
         }
 
         // If 'id' is present and belongs to district, update. Else create.
@@ -48,7 +53,7 @@ class TendersImport implements ToModel, WithHeadingRow, WithValidation
                 'description' => $row['description'] ?? null,
                 'subdistrict_id' => $subdistrictId,
                 'department' => $row['department'] ?? null,
-                'value' => $row['value'] ?? null,
+                'value' => $row['amount'] ?? $row['value'] ?? null,
                 'publish_date' => $this->transformDate($row['publish_date'] ?? null),
                 'closing_date' => $this->transformDate($row['closing_date'] ?? null),
                 'status' => strtolower($row['status'] ?? 'draft'),
@@ -70,10 +75,14 @@ class TendersImport implements ToModel, WithHeadingRow, WithValidation
     private function transformDate($value)
     {
         if (!$value) return null;
+        
         try {
-            return Date::excelToDateTimeObject($value);
-        } catch (\Exception $e) {
+            if (is_numeric($value)) {
+                return Date::excelToDateTimeObject($value);
+            }
             return \Carbon\Carbon::parse($value);
+        } catch (\Exception $e) {
+            return null;
         }
     }
 }

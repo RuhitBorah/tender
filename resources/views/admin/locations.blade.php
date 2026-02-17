@@ -1,313 +1,257 @@
-<x-app-layout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-8">
-        <div class="max-w-[1300px] mx-auto px-1 sm:px-2">
-            
-            <div x-data="locationManager()" x-init="init()">
-                <!-- Hero Header with Stats -->
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                        <div>
-                            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                Location Management
-                            </h1>
-                            <p class="text-gray-600 mt-2">Manage districts and subdistricts for your organization</p>
+<x-app-layout :padding="false">
+    <div class="min-h-screen bg-slate-950 pb-12" x-data="locationManager()" x-init="init()">
+        <x-toast-notification />
+
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-32">
+            <div class="max-w-[1600px] mx-auto px-6 sm:px-12">
+                <!-- Header Section -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8">
+                    <div>
+                        <h1 class="text-4xl font-bold text-white tracking-tight leading-tight">
+                            Locations
+                        </h1>
+                        <p class="text-indigo-200 mt-2 text-lg">Manage districts and user access.</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                        <div class="relative group w-full md:w-80">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-indigo-200/70 group-focus-within:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="text" 
+                                x-model="searchQuery" 
+                                placeholder="Search districts..." 
+                                class="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl focus:border-white/50 focus:ring-4 focus:ring-white/10 transition-all text-white placeholder:text-indigo-200/70 shadow-lg backdrop-blur-sm outline-none"
+                            >
                         </div>
+
                         <button 
                             @click="showAddDistrict = true" 
-                            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:shadow-xl transition-all flex items-center gap-2"
+                            class="px-6 py-3 bg-white text-indigo-900 font-bold rounded-xl hover:bg-indigo-50 focus:ring-4 focus:ring-white/20 transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             Add District
                         </button>
                     </div>
+                </div>
 
-                    <!-- Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-5 border border-indigo-200">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                    <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-indigo-700">Total Districts</p>
-                                    <p class="text-3xl font-bold text-indigo-900" x-text="districts.length"></p>
-                                </div>
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/15 transition-all group">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-1">Total Districts</p>
+                                <h4 class="text-4xl font-bold text-white leading-none" x-text="districts.length"></h4>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border border-purple-200">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-purple-700">Total Subdistricts</p>
-                                    <p class="text-3xl font-bold text-purple-900" x-text="districts.reduce((acc, d) => acc + (d.subdistricts_count || 0), 0)"></p>
-                                </div>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/15 transition-all group">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-300 group-hover:scale-110 transition-transform">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-emerald-200 uppercase tracking-widest mb-1">Total Users</p>
+                                <h4 class="text-4xl font-bold text-white leading-none" x-text="districts.reduce((acc, d) => acc + (d.users_count || 0) + (d.subdistricts ? d.subdistricts.reduce((sAcc, s) => sAcc + (s.users_count || 0), 0) : 0), 0)"></h4>
+                                <p class="text-[10px] text-emerald-200/70 mt-1">* Includes sub-district users</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-5 border border-teal-200">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                    <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-teal-700">Total Tenders</p>
-                                    <p class="text-3xl font-bold text-teal-900" x-text="districts.reduce((acc, d) => acc + (d.tenders_count || 0), 0)"></p>
-                                </div>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/15 transition-all group">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-blue-300 group-hover:scale-110 transition-transform">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">Tenders</p>
+                                <h4 class="text-4xl font-bold text-white leading-none" x-text="districts.reduce((acc, d) => acc + (d.tenders_count || 0), 0)"></h4>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Add District Form (Inline) -->
+        <div class="max-w-[1600px] mx-auto px-6 sm:px-12 -mt-6">
+            
+            <!-- Sync State -->
+            <div x-show="isLoading" class="flex flex-col items-center justify-center py-24">
+                <div class="w-12 h-12 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
+                <p class="mt-8 text-xs font-bold text-slate-500 uppercase tracking-widest">Synchronizing Data...</p>
+            </div>
+
+                <!-- Content Grid -->
                 <div 
-                    x-show="showAddDistrict" 
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-show="!isLoading && districts.length > 0" 
+                    class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-24"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-8"
                     x-transition:enter-end="opacity-100 translate-y-0"
-                    class="bg-white rounded-2xl shadow-lg border border-indigo-200 p-6 mb-6"
-                    style="display: none;"
                 >
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New District</h3>
-                    <div class="flex gap-3">
-                        <input 
-                            type="text" 
-                            x-model="newDistrict.name" 
-                            placeholder="Enter district name" 
-                            @keydown.enter="addDistrict()"
-                            class="flex-1 border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button @click="addDistrict()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition shadow-lg">
-                            Save
-                        </button>
-                        <button @click="showAddDistrict = false; newDistrict.name = ''" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition">
-                            Cancel
-                        </button>
-                    </div>
-                </div>
+                    <template x-for="district in filteredDistricts" :key="district.id">
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-lg hover:border-slate-600 transition-all duration-300 group overflow-hidden flex flex-col">
+                            <!-- Card Header -->
+                            <div class="p-8 border-b border-slate-800 bg-slate-800/20">
+                                <div class="flex items-center justify-between gap-4 mb-6">
+                                    <div class="flex-1 min-w-0">
+                                        <div x-show="editingDistrict?.id !== district.id" class="flex items-center gap-3">
+                                            <h3 class="text-xl font-bold text-white truncate" x-text="district.name"></h3>
+                                            <button @click="editingDistrict = {...district}" class="p-2 text-slate-600 hover:text-white hover:bg-slate-800 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                            </button>
+                                        </div>
 
-                <!-- Districts Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <template x-for="district in districts" :key="district.id">
-                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300">
-                            <!-- District Header -->
-                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 text-white">
-                                <div x-show="editingDistrict?.id !== district.id">
-                                    <h3 class="text-lg font-bold mb-2" x-text="district.name"></h3>
-                                    <div class="flex flex-wrap gap-1.5">
-                                        <span class="px-2 py-0.5 bg-white/20 backdrop-blur rounded-lg text-xs font-medium">
-                                            <span x-text="district.subdistricts_count"></span> Sub
-                                        </span>
-                                        <span class="px-2 py-0.5 bg-white/20 backdrop-blur rounded-lg text-xs font-medium">
-                                            <span x-text="district.users_count"></span> Users
-                                        </span>
-                                        <span class="px-2 py-0.5 bg-white/20 backdrop-blur rounded-lg text-xs font-medium">
-                                            <span x-text="district.tenders_count"></span> Tend
-                                        </span>
+                                        <!-- Edit Input -->
+                                        <div x-show="editingDistrict?.id === district.id" class="flex items-center gap-3">
+                                            <input 
+                                                type="text" 
+                                                x-model="editingDistrict.name" 
+                                                @keydown.enter="updateDistrict()"
+                                                @keydown.escape="editingDistrict = null"
+                                                class="w-full bg-slate-950 border border-indigo-500/50 text-white rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                                autofocus
+                                            >
+                                            <button @click="updateDistrict()" class="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 shadow-lg shadow-indigo-900/20">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <button 
+                                            @click="deleteDistrict(district)" 
+                                            class="p-2 text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                            title="Delete District"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Edit Mode -->
-                                <div x-show="editingDistrict?.id === district.id">
-                                    <input 
-                                        type="text" 
-                                        x-model="editingDistrict.name" 
-                                        @keydown.enter="updateDistrict()"
-                                        @keydown.escape="editingDistrict = null"
-                                        class="w-full bg-white/20 backdrop-blur border-white/40 text-white placeholder-white/60 rounded-lg"
+                                <div class="flex items-center gap-5">
+                                    <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                                        <span x-text="district.subdistricts_count"></span> Sub-districts
+                                    </div>
+                                    <button 
+                                        @click="fetchUsers('district', district.id, district.name)"
+                                        class="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-indigo-400 hover:text-white hover:bg-slate-800 px-3 py-1.5 -ml-3 rounded-lg transition-colors"
                                     >
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="flex items-center gap-1 mt-3">
-                                    <template x-if="editingDistrict?.id === district.id">
-                                        <div class="flex gap-1">
-                                            <button @click="updateDistrict()" class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-xs">
-                                                Save
-                                            </button>
-                                            <button @click="editingDistrict = null" class="px-2 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg font-medium transition text-xs">
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </template>
-                                    <template x-if="editingDistrict?.id !== district.id">
-                                        <div class="flex gap-1 flex-wrap">
-                                            <button 
-                                                @click="fetchUsers('district', district.id, district.name)" 
-                                                class="px-2 py-1 bg-white text-indigo-600 rounded-lg font-bold hover:bg-indigo-50 transition text-xs flex items-center gap-1"
-                                                x-show="district.users_count > 0"
-                                            >
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                                </svg>
-                                                Users
-                                            </button>
-                                            <a 
-                                                :href="`/admin/tenders?district_id=${district.id}`" 
-                                                target="_blank"
-                                                x-show="district.tenders_count > 0"
-                                                class="px-2 py-1 bg-white text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition text-xs flex items-center gap-1"
-                                            >
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                                </svg>
-                                                View
-                                            </a>
-                                            <a 
-                                                :href="`/admin/${district.name}/tender`" 
-                                                target="_blank"
-                                                class="px-2 py-1 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition text-xs flex items-center gap-1"
-                                            >
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                Sheet
-                                            </a>
-                                            <button @click="editingDistrict = {...district}" class="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                </svg>
-                                            </button>
-                                            <button @click="deleteDistrict(district)" class="p-2 bg-white/20 hover:bg-red-600 rounded-lg transition">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </template>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                        <span x-text="district.users_count"></span> Users
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- Subdistricts Section -->
-                            <div class="p-3">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Subdistricts</h4>
+                            <!-- Body & Sub-districts -->
+                            <div class="p-8 flex-1 flex flex-col">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h4 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Sub-districts</h4>
                                     <button 
                                         @click="selectDistrict(district); showAddSubdistrict = true" 
-                                        class="px-2 py-0.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-medium transition"
+                                        class="p-2 text-indigo-400 bg-slate-800 hover:bg-indigo-600 hover:text-white rounded-lg transition-colors"
+                                        title="Add Sub-district"
                                     >
-                                        + Add
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     </button>
                                 </div>
 
-                                <!-- Add Subdistrict Form -->
-                                <div 
-                                    x-show="showAddSubdistrict && selectedDistrict?.id === district.id" 
-                                    class="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4"
-                                    style="display: none;"
-                                >
-                                    <div class="flex gap-2">
+                                <!-- Inline Add -->
+                                <div x-show="showAddSubdistrict && selectedDistrict?.id === district.id" x-collapse>
+                                    <div class="mb-6 flex gap-3">
                                         <input 
                                             type="text" 
                                             x-model="newSubdistrict.name" 
-                                            placeholder="Subdistrict name" 
+                                            placeholder="New sub-district name" 
                                             @keydown.enter="addSubdistrict()"
-                                            class="flex-1 border-purple-300 rounded-lg text-sm"
+                                            class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-600"
+                                            autofocus
                                         >
-                                        <button @click="addSubdistrict()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
-                                            Save
-                                        </button>
-                                        <button @click="showAddSubdistrict = false; newSubdistrict.name = ''" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium">
-                                            Cancel
+                                        <button @click="addSubdistrict()" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 text-sm font-semibold">
+                                            Add
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- Subdistricts List -->
-                                <div class="space-y-2">
+                                <!-- List -->
+                                <ul class="space-y-1 flex-1">
                                     <template x-for="subdistrict in (district.subdistricts || [])" :key="subdistrict.id">
-                                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200 rounded-xl p-4">
-                                            <div x-show="editingSubdistrict?.id !== subdistrict.id">
-                                                <div class="flex items-start justify-between">
-                                                    <div class="flex-1">
-                                                        <h5 class="font-semibold text-gray-900" x-text="subdistrict.name"></h5>
-                                                        <div class="flex gap-3 mt-2 text-sm text-gray-600">
-                                                            <span><span x-text="subdistrict.users_count"></span> Users</span>
-                                                            <span><span x-text="subdistrict.tenders_count"></span> Tenders</span>
-                                                        </div>
-                                                        <div class="flex gap-2 mt-2">
-                                                            <button 
-                                                                @click="fetchUsers('subdistrict', subdistrict.id, subdistrict.name)"
-                                                                x-show="subdistrict.users_count > 0"
-                                                                class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-semibold text-sm"
-                                                            >
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                                                </svg>
-                                                                Users
-                                                            </button>
-                                                            <a 
-                                                            :href="`/admin/${district.name}/${subdistrict.name}/tender`" 
-                                                            target="_blank"
-                                                            class="inline-flex items-center gap-1 text-green-600 hover:text-green-800 font-semibold text-sm mt-2 ml-3"
-                                                        >
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                            Sheet
-                                                        </a>
-                                                        <a 
-                                                            :href="`/admin/tenders?subdistrict_id=${subdistrict.id}`" 
-                                                            target="_blank"
-                                                            x-show="subdistrict.tenders_count > 0"
-                                                            class="inline-flex items-center gap-1 text-purple-600 hover:text-purple-800 font-semibold text-sm mt-2"
-                                                        >
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                                            </svg>
-                                                            View Tenders
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex gap-1 ml-2">
-                                                        <button @click="editingSubdistrict = {...subdistrict}; selectedDistrict = district" class="p-1.5 hover:bg-teal-200 rounded-lg transition">
-                                                            <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                            </svg>
-                                                        </button>
-                                                        <button @click="deleteSubdistrict(subdistrict)" class="p-1.5 hover:bg-red-100 rounded-lg transition">
-                                                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
+                                        <li class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/50 border border-transparent hover:border-slate-800 transition-all group/sub">
+                                            <div class="flex-1 min-w-0 mr-4">
+                                                <div x-show="editingSubdistrict?.id !== subdistrict.id" class="flex items-center justify-between">
+                                                    <span class="text-sm font-medium text-slate-300 group-hover/sub:text-white transition-colors" x-text="subdistrict.name"></span>
+                                                    <a 
+                                                        :href="`/admin/${district.name}/${subdistrict.name}/tender`" 
+                                                        target="_blank"
+                                                        class="opacity-0 group-hover/sub:opacity-100 text-[10px] font-bold uppercase tracking-wider text-indigo-400 hover:text-indigo-300 transition-all bg-indigo-500/10 px-2 py-1 rounded"
+                                                    >
+                                                        Access
+                                                    </a>
+                                                </div>
+
+                                                <div x-show="editingSubdistrict?.id === subdistrict.id" class="flex items-center gap-2">
+                                                    <input 
+                                                        type="text" 
+                                                        x-model="editingSubdistrict.name" 
+                                                        @keydown.enter="updateSubdistrict()"
+                                                        @keydown.escape="editingSubdistrict = null"
+                                                        class="flex-1 min-w-0 bg-slate-950 border border-indigo-500/50 text-white rounded px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-lg shadow-indigo-500/10 placeholder:text-slate-600"
+                                                        placeholder="Sub-district name"
+                                                        autofocus
+                                                    >
+                                                    <button 
+                                                        @click="updateSubdistrict()" 
+                                                        class="p-1.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg transition-all border border-transparent hover:border-emerald-400/50 shadow-lg shadow-emerald-500/20"
+                                                        title="Save changes"
+                                                    >
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    </button>
+                                                    <button 
+                                                        @click="editingSubdistrict = null" 
+                                                        class="p-1.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white rounded-lg transition-all border border-transparent hover:border-rose-400/50 shadow-lg shadow-rose-500/20"
+                                                        title="Cancel"
+                                                    >
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
                                                 </div>
                                             </div>
 
-                                            <!-- Edit Mode -->
-                                            <div x-show="editingSubdistrict?.id === subdistrict.id">
-                                                <input 
-                                                    type="text" 
-                                                    x-model="editingSubdistrict.name" 
-                                                    @keydown.enter="updateSubdistrict()"
-                                                    @keydown.escape="editingSubdistrict = null"
-                                                    class="w-full border-teal-300 rounded-lg"
-                                                >
-                                                <div class="flex gap-2 mt-2">
-                                                    <button @click="updateSubdistrict()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm">
-                                                        Save
-                                                    </button>
-                                                    <button @click="editingSubdistrict = null" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm">
-                                                        Cancel
-                                                    </button>
-                                                </div>
+                                            <div class="flex items-center gap-1 opacity-0 group-hover/sub:opacity-100 transition-all">
+                                                <button @click="editingSubdistrict = {...subdistrict}; selectedDistrict = district" class="p-1.5 text-slate-500 hover:text-white transition-colors">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </button>
+                                                <button @click="deleteSubdistrict(subdistrict)" class="p-1.5 text-slate-500 hover:text-rose-400 transition-colors">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
                                             </div>
-                                        </div>
+                                        </li>
                                     </template>
+                                </ul>
 
-                                    <div x-show="!district.subdistricts || district.subdistricts.length === 0" class="text-center py-6 text-gray-400">
-                                        <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                                        </svg>
-                                        <p class="text-sm">No subdistricts yet</p>
+                                <template x-if="!district.subdistricts || district.subdistricts.length === 0">
+                                    <div class="text-center py-8">
+                                        <p class="text-xs text-slate-700 font-medium uppercase tracking-wider">Empty District</p>
                                     </div>
+                                </template>
+
+                                <div class="mt-8 pt-5 border-t border-slate-800 flex justify-center">
+                                    <a 
+                                        :href="`/admin/${district.name}/tender`" 
+                                        target="_blank"
+                                        class="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-2"
+                                    >
+                                        View Tenders
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -315,116 +259,184 @@
                 </div>
 
                 <!-- Empty State -->
-                <div x-show="districts.length === 0" class="text-center py-16">
-                    <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No Districts Yet</h3>
-                    <p class="text-gray-500 mb-6">Get started by adding your first district</p>
-                    <button @click="showAddDistrict = true" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition">
-                        Add First District
+                <div x-show="!isLoading && districts.length === 0" class="text-center py-32 bg-slate-900/50 rounded-3xl border border-dashed border-slate-800">
+                    <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner border border-slate-800">
+                        <svg class="w-10 h-10 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">No Districts Found</h3>
+                    <p class="text-slate-500 mb-10 max-w-sm mx-auto">Create your first district to begin managing the location grid.</p>
+                    <button 
+                        @click="showAddDistrict = true" 
+                        class="px-10 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all hover:-translate-y-1"
+                    >
+                        Create District
                     </button>
                 </div>
-                <!-- Users List Modal -->
+
+                <!-- Add District Modal (Dark) -->
                 <div 
-                    x-show="showUsersModal" 
-                    @click="showUsersModal = false"
-                    x-transition:enter="transition-opacity ease-out duration-300"
+                    x-show="showAddDistrict" 
+                    @click="showAddDistrict = false"
+                    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0"
                     x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition-opacity ease-in duration-200"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
-                    style="display: none;"
                 >
                     <div 
                         @click.stop
-                        x-show="showUsersModal"
-                        x-transition:enter="transform transition ease-out duration-300"
+                        class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-md overflow-hidden transform transition-all"
+                        x-show="showAddDistrict"
+                        x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave="transform transition ease-in duration-200"
-                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-                        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden"
                     >
-                        <!-- Header -->
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between shrink-0">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900" x-text="usersModalTitle"></h3>
-                                <p class="text-sm text-gray-500" x-text="usersList.length + ' users found'"></p>
+                        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
+                            <h3 class="text-lg font-bold text-white">Add New District</h3>
+                            <button @click="showAddDistrict = false" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        <div class="p-8">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">District Name</label>
+                            <input 
+                                type="text" 
+                                x-model="newDistrict.name" 
+                                placeholder="e.g. Sector 7" 
+                                @keydown.enter="addDistrict()"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-5 py-3 text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-600 mb-8"
+                                autofocus
+                            >
+                            <div class="flex gap-4 justify-end">
+                                <button @click="showAddDistrict = false" class="px-6 py-3 text-slate-400 font-semibold hover:text-white hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
+                                <button @click="addDistrict()" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all">Create District</button>
                             </div>
-                            <button @click="showUsersModal = false" class="p-2 hover:bg-gray-200 rounded-lg transition text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Modal (Dark) -->
+                <div 
+                    x-show="showUsersModal" 
+                    @click="showUsersModal = false"
+                    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                >
+                    <div 
+                        @click.stop
+                        class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden"
+                         x-show="showUsersModal"
+                        x-transition:enter="transition ease-out duration-300 transform"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                    >
+                        <div class="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white tracking-tight" x-text="usersModalTitle"></h3>
+                                <p class="text-sm font-medium text-slate-500 mt-1" x-text="usersList.length + ' registered users'"></p>
+                            </div>
+                            <button @click="showUsersModal = false" class="text-slate-500 hover:text-white transition-colors p-3 hover:bg-slate-800 rounded-xl">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                         </div>
 
-                        <!-- Content -->
-                        <div class="p-6 overflow-y-auto flex-1">
+                        <div class="flex-1 overflow-y-auto p-8 bg-slate-900">
                             <template x-if="isLoadingUsers">
-                                <div class="flex items-center justify-center py-12">
-                                    <svg class="w-10 h-10 text-indigo-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </div>
-                            </template>
-                            
-                            <template x-if="!isLoadingUsers && usersList.length === 0">
-                                <div class="text-center py-12">
-                                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-medium text-gray-900">No users found</h3>
-                                    <p class="text-gray-500 mt-1">There are no users associated with this location yet.</p>
+                                <div class="flex flex-col items-center justify-center py-20">
+                                    <div class="w-10 h-10 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
                                 </div>
                             </template>
 
                             <template x-if="!isLoadingUsers && usersList.length > 0">
-                                <div class="space-y-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <template x-for="user in usersList" :key="user.id">
-                                        <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                                                <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                        <div class="flex items-center gap-5 p-5 rounded-xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800/50 transition-all bg-slate-900/50 group">
+                                            <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-indigo-400 font-bold border border-slate-700 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 group-hover:border-indigo-500/30 transition-all">
+                                                <span x-text="user.name.charAt(0)"></span>
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-semibold text-gray-900 truncate" x-text="user.name"></p>
-                                                <p class="text-xs text-gray-500 truncate" x-text="user.email"></p>
-                                                <template x-if="user.subdistrict">
-                                                    <p class="text-xs text-indigo-600 mt-0.5 flex items-center gap-1">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                                        <span x-text="user.subdistrict.name"></span>
-                                                    </p>
-                                                </template>
+                                                <h4 class="font-bold text-white truncate" x-text="user.name"></h4>
+                                                <p class="text-sm text-slate-500 truncate" x-text="user.email"></p>
                                             </div>
-                                            <div class="shrink-0 flex items-center gap-2">
-                                                 <span class="px-2 py-1 rounded-full text-xs font-medium" 
-                                                    :class="user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
-                                                    x-text="user.role === 'admin' ? 'Admin' : 'User'">
-                                                 </span>
-                                                 <a :href="'mailto:' + user.email" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg transition" title="Send Email">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                                    </svg>
-                                                 </a>
+                                            <div class="flex flex-col gap-2 items-end">
+                                                <span class="px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-bold rounded uppercase tracking-wider border border-slate-700" x-text="user.role"></span>
+                                                <template x-if="user.subdistrict">
+                                                    <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold rounded uppercase tracking-wider border border-indigo-500/20" x-text="user.subdistrict.name"></span>
+                                                </template>
                                             </div>
                                         </div>
                                     </template>
                                 </div>
                             </template>
+                            
+                            <template x-if="!isLoadingUsers && usersList.length === 0">
+                                <div class="text-center py-20 text-slate-600">
+                                    <p class="uppercase tracking-widest text-xs font-bold">No personnel data available</p>
+                                </div>
+                            </template>
                         </div>
-                        
-                        <!-- Footer -->
-                        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end shrink-0">
-                            <button @click="showUsersModal = false" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Close
-                            </button>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div 
+                    x-show="deleteModal.show" 
+                    class="fixed inset-0 z-[60] flex items-center justify-center px-4"
+                    role="dialog"
+                    aria-modal="true"
+                    style="display: none;"
+                >
+                    <!-- Backdrop -->
+                    <div 
+                        x-show="deleteModal.show"
+                        x-transition:enter="ease-out duration-300"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="ease-in duration-200"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+                        @click="deleteModal.show = false"
+                    ></div>
+
+                    <!-- Modal Panel -->
+                    <div 
+                        x-show="deleteModal.show"
+                        x-transition:enter="ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        class="relative bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-md overflow-hidden transform transition-all"
+                    >
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <div class="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </div>
+                                <button @click="deleteModal.show = false" class="text-slate-500 hover:text-white transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-white mb-2" x-text="deleteModal.title"></h3>
+                            <p class="text-slate-400 text-sm leading-relaxed mb-8" x-text="deleteModal.message"></p>
+
+                            <div class="flex gap-3 justify-end">
+                                <button 
+                                    @click="deleteModal.show = false" 
+                                    class="px-5 py-2.5 text-slate-400 font-semibold hover:text-white hover:bg-slate-800 rounded-xl transition-colors text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    @click="performDelete()" 
+                                    class="px-5 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-500 shadow-lg shadow-rose-900/20 transition-all text-sm"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -436,212 +448,150 @@
     <script>
         function locationManager() {
             return {
-                districts: [],
-                selectedDistrict: null,
-                showAddDistrict: false,
-                showAddSubdistrict: false,
-                showUsersModal: false,
-                usersList: [],
-                usersModalTitle: '',
-                isLoadingUsers: false,
-                newDistrict: { name: '' },
-                newSubdistrict: { name: '' },
-                editingDistrict: null,
-                editingSubdistrict: null,
+                districts: [], searchQuery: '', selectedDistrict: null,
+                showAddDistrict: false, showAddSubdistrict: false, showUsersModal: false,
+                usersList: [], usersModalTitle: '', isLoading: false, isLoadingUsers: false,
+                toastShow: false, toastType: 'success', toastMessage: '',
+                newDistrict: { name: '' }, newSubdistrict: { name: '' },
+                editingDistrict: null, editingSubdistrict: null,
 
-                init() {
-                    this.fetchDistricts();
+                init() { this.fetchDistricts(); },
+
+                showToast(message, type = 'success') {
+                    this.toastMessage = message; this.toastType = type; this.toastShow = true;
+                    setTimeout(() => { this.toastShow = false; }, 4000);
                 },
 
-                fetchDistricts() {
-                    fetch('/admin/api/districts', {
-                        headers: { 'Accept': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
+                get filteredDistricts() {
+                    if (!this.searchQuery) return this.districts;
+                    const query = this.searchQuery.toLowerCase();
+                    return this.districts.filter(d => 
+                        d.name.toLowerCase().includes(query) ||
+                        (d.subdistricts && d.subdistricts.some(s => s.name.toLowerCase().includes(query)))
+                    );
+                },
+
+                fetchDistricts(background = false) {
+                    if (!background) this.isLoading = true;
+                    fetch('/admin/api/districts', { headers: { 'Accept': 'application/json' } })
+                    .then(res => res.json()).then(data => {
                         this.districts = data;
-                        // Update selected district if it exists
-                        if (this.selectedDistrict) {
-                            this.selectedDistrict = this.districts.find(d => d.id === this.selectedDistrict.id);
-                        }
-                    });
+                        if (this.selectedDistrict) this.selectedDistrict = this.districts.find(d => d.id === this.selectedDistrict.id);
+                    }).finally(() => { this.isLoading = false; });
                 },
 
                 fetchUsers(type, id, name) {
-                    this.usersModalTitle = `Users in ${name}`;
-                    this.usersList = [];
-                    this.isLoadingUsers = true;
-                    this.showUsersModal = true;
-
-                    let url = '/admin/api/users?';
-                    if (type === 'district') {
-                        url += `district_id=${id}`;
-                    } else {
-                        url += `subdistrict_id=${id}`;
-                    }
-
-                    fetch(url, {
-                        headers: { 'Accept': 'application/json' }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        // Handle pagination response or raw array
-                        this.usersList = data.data ? data.data : data; 
-                        this.isLoadingUsers = false;
-                    })
-                    .catch(() => {
-                        this.isLoadingUsers = false;
-                        alert('Error fetching users');
-                    });
-                },
-
-                selectDistrict(district) {
-                    this.selectedDistrict = district;
-                    this.editingSubdistrict = null;
+                    this.usersModalTitle = `Users: ${name}`; this.usersList = []; this.isLoadingUsers = true; this.showUsersModal = true;
+                    fetch(`/admin/api/users?${type === 'district' ? 'district_id' : 'subdistrict_id'}=${id}`, { headers: { 'Accept': 'application/json' } })
+                    .then(res => res.json()).then(data => {
+                        this.usersList = data.data ? data.data : data; this.isLoadingUsers = false;
+                    }).catch(() => { this.isLoadingUsers = false; alert('Connection Failed'); });
                 },
 
                 addDistrict() {
                     if (!this.newDistrict.name.trim()) return;
-
                     fetch('/admin/api/districts', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: JSON.stringify(this.newDistrict)
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed');
-                        return res.json();
-                    })
-                    .then(() => {
-                        this.newDistrict.name = '';
-                        this.showAddDistrict = false;
-                        this.fetchDistricts();
-                    })
-                    .catch(() => alert('Error creating district'));
+                    }).then(res => res.json()).then(() => {
+                        this.newDistrict.name = ''; this.showAddDistrict = false; this.fetchDistricts(true);
+                        this.showToast('District created.');
+                    }).catch(() => this.showToast('Failed to create district', 'error'));
                 },
 
                 updateDistrict() {
                     if (!this.editingDistrict.name.trim()) return;
-
                     fetch(`/admin/api/districts/${this.editingDistrict.id}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: JSON.stringify({ name: this.editingDistrict.name })
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed');
-                        return res.json();
-                    })
-                    .then(() => {
-                        this.editingDistrict = null;
-                        this.fetchDistricts();
-                    })
-                    .catch(() => alert('Error updating district'));
+                    }).then(() => { this.editingDistrict = null; this.fetchDistricts(true); this.showToast('District updated.'); });
                 },
 
                 deleteDistrict(district) {
-                    if (!confirm(`Delete district "${district.name}"?`)) return;
-
-                    fetch(`/admin/api/districts/${district.id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    this.confirmDelete(
+                        'Delete District', 
+                        `Are you sure you want to permanently delete "${district.name}"? This action cannot be undone.`,
+                        () => {
+                            fetch(`/admin/api/districts/${district.id}`, {
+                                method: 'DELETE',
+                                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            }).then(async (res) => {
+                                if (!res.ok) {
+                                    const data = await res.json();
+                                    throw new Error(data.message || 'Deletion failed');
+                                }
+                                if (this.selectedDistrict?.id === district.id) this.selectedDistrict = null;
+                                this.fetchDistricts(true);
+                                this.showToast('District deleted.');
+                            }).catch((err) => this.showToast(err.message, 'error'));
                         }
-                    })
-                    .then(res => {
-                        if (!res.ok) return res.json().then(err => { throw new Error(err.message); });
-                        return res.json();
-                    })
-                    .then(() => {
-                        if (this.selectedDistrict?.id === district.id) {
-                            this.selectedDistrict = null;
-                        }
-                        this.fetchDistricts();
-                    })
-                    .catch(err => alert(err.message || 'Error deleting district'));
+                    );
                 },
 
                 addSubdistrict() {
                     if (!this.newSubdistrict.name.trim() || !this.selectedDistrict) return;
-
                     fetch('/admin/api/subdistricts', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
-                            name: this.newSubdistrict.name,
-                            district_id: this.selectedDistrict.id
-                        })
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed');
-                        return res.json();
-                    })
-                    .then(() => {
-                        this.newSubdistrict.name = '';
-                        this.showAddSubdistrict = false;
-                        this.fetchDistricts();
-                    })
-                    .catch(() => alert('Error creating subdistrict'));
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: JSON.stringify({ name: this.newSubdistrict.name, district_id: this.selectedDistrict.id })
+                    }).then(() => { this.newSubdistrict.name = ''; this.showAddSubdistrict = false; this.fetchDistricts(true); this.showToast('Sub-district added.'); });
                 },
 
                 updateSubdistrict() {
-                    if (!this.editingSubdistrict.name.trim()) return;
-
+                    if (!this.editingSubdistrict || !this.editingSubdistrict.name.trim()) return;
                     fetch(`/admin/api/subdistricts/${this.editingSubdistrict.id}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: JSON.stringify({ 
                             name: this.editingSubdistrict.name,
-                            district_id: this.selectedDistrict.id
+                            district_id: this.editingSubdistrict.district_id 
                         })
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed');
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const data = await res.json();
+                            throw new Error(data.message || 'Validation failed');
+                        }
                         return res.json();
-                    })
-                    .then(() => {
-                        this.editingSubdistrict = null;
-                        this.fetchDistricts();
-                    })
-                    .catch(() => alert('Error updating subdistrict'));
+                    }).then(() => { 
+                        this.editingSubdistrict = null; 
+                        this.fetchDistricts(true); 
+                        this.showToast('Sub-district updated.'); 
+                    }).catch((err) => {
+                        console.error(err);
+                        this.showToast(err.message || 'Failed to update sub-district.', 'error');
+                    });
                 },
 
                 deleteSubdistrict(subdistrict) {
-                    if (!confirm(`Delete subdistrict "${subdistrict.name}"?`)) return;
-
-                    fetch(`/admin/api/subdistricts/${subdistrict.id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    this.confirmDelete(
+                        'Delete Sub-district',
+                        `Are you sure you want to delete "${subdistrict.name}"?`,
+                        () => {
+                            fetch(`/admin/api/subdistricts/${subdistrict.id}`, {
+                                method: 'DELETE',
+                                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            }).then(() => { this.fetchDistricts(true); this.showToast('Sub-district deleted.'); });
                         }
-                    })
-                    .then(res => {
-                        if (!res.ok) return res.json().then(err => { throw new Error(err.message); });
-                        return res.json();
-                    })
-                    .then(() => {
-                        this.fetchDistricts();
-                    })
-                    .catch(err => alert(err.message || 'Error deleting subdistrict'));
-                }
+                    );
+                },
+
+                // Delete Modal Logic
+                deleteModal: { show: false, title: '', message: '', action: null },
+
+                confirmDelete(title, message, action) {
+                    this.deleteModal = { show: true, title, message, action };
+                },
+
+                performDelete() {
+                    if (this.deleteModal.action) {
+                        this.deleteModal.action();
+                    }
+                    this.deleteModal.show = false;
+                },
+
+                selectDistrict(district) { this.selectedDistrict = district; this.editingSubdistrict = null; }
             };
         }
     </script>

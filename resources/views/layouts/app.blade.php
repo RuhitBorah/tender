@@ -15,12 +15,12 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 pt-20">
-            @include('layouts.navigation')
+        <div class="min-h-screen bg-slate-950">
+            @include('layouts.navigation', ['maxWidth' => $maxWidth ?? 'max-w-7xl'])
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
+                <header class="bg-slate-900 border-b border-slate-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -28,7 +28,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="{{ $padding ? 'pt-28' : '' }}">
                 {{ $slot }}
             </main>
         </div>

@@ -191,6 +191,12 @@ Route::middleware('auth')->group(function () {
                           ->orWhere('email', 'like', "%{$search}%");
                     });
                 }
+                if ($request->district_id) {
+                    $query->where('district_id', $request->district_id);
+                }
+                if ($request->subdistrict_id) {
+                    $query->where('subdistrict_id', $request->subdistrict_id);
+                }
                 return $query->paginate(15);
             });
 
