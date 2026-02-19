@@ -237,7 +237,7 @@
                         WhatsApp
                         <span class="badge-recommended">RECOMMENDED</span>
                     </div>
-                    <div class="contact-value green">+91 94358 22026</div>
+                    <div class="contact-value green">+91 94358 22016</div>
                 </div>
             </a>
 
