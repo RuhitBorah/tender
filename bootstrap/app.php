@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return route('dashboard', ['username' => Illuminate\Support\Str::slug($user->name)]);
         });
+
+        // Maintenance mode: blocks non-admins when storage/framework/down exists
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

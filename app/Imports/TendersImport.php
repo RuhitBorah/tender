@@ -9,9 +9,11 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Illuminate\Validation\Rule;
 
-class TendersImport implements ToModel, WithHeadingRow, WithValidation
+class TendersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, WithBatchInserts
 {
     protected $district;
     protected $subdistricts;
@@ -24,6 +26,16 @@ class TendersImport implements ToModel, WithHeadingRow, WithValidation
         $this->subdistricts = $district->subdistricts->pluck('id', 'name')->mapWithKeys(function ($item, $key) {
             return [strtolower($key) => $item];
         });
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
+    }
+
+    public function batchSize(): int
+    {
+        return 1000;
     }
 
     public function model(array $row)

@@ -201,6 +201,54 @@
                         </div>
                     </div>
 
+                    <!-- Maintenance Mode Card -->
+                    <div class="rounded-2xl shadow-xl border overflow-hidden transition-all"
+                         :class="maintenanceOn
+                            ? 'bg-amber-50 border-amber-200 shadow-amber-100/60'
+                            : 'bg-white border-gray-100 shadow-gray-200/50'">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+                                         :class="maintenanceOn ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-500'">
+                                        <svg class="w-5 h-5" :class="maintenanceOn ? 'animate-spin' : ''" style="animation-duration:4s" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                            <circle cx="12" cy="12" r="3"/>
+                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold" :class="maintenanceOn ? 'text-amber-800' : 'text-gray-800'">Maintenance Mode</p>
+                                        <p class="text-xs" :class="maintenanceOn ? 'text-amber-600' : 'text-gray-400'">
+                                            <span x-show="maintenanceOn">Site locked for public</span>
+                                            <span x-show="!maintenanceOn">Site is live &amp; accessible</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                      :class="maintenanceOn ? 'bg-amber-200 text-amber-800' : 'bg-green-100 text-green-700'">
+                                    <span class="w-1.5 h-1.5 rounded-full inline-block"
+                                          :class="maintenanceOn ? 'bg-amber-500 animate-pulse' : 'bg-green-500'"></span>
+                                    <span x-text="maintenanceOn ? 'ON' : 'Live'"></span>
+                                </span>
+                            </div>
+
+                            <button @click="toggleMaintenance()"
+                                    :disabled="maintenanceLoading"
+                                    class="w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                                    :class="maintenanceOn
+                                        ? 'bg-green-500 hover:bg-green-600 text-white shadow-md shadow-green-200'
+                                        : 'bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-200'">
+                                <svg x-show="maintenanceLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                </svg>
+                                <span x-show="!maintenanceLoading && maintenanceOn">&#10003; Bring Site Back Online</span>
+                                <span x-show="!maintenanceLoading && !maintenanceOn">&#9888; Enable Maintenance Mode</span>
+                                <span x-show="maintenanceLoading">Working…</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Recent Users -->
                     <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                         <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
@@ -241,6 +289,8 @@
                 toastMessage: '',
                 toastType: 'success',
                 districts: @json($districts),
+                maintenanceOn: {{ file_exists(storage_path('framework/maintenance.lock')) ? 'true' : 'false' }},
+                maintenanceLoading: false,
                 newTender: {
                     tender_no: '',
                     title: '',
@@ -295,6 +345,35 @@
                     .catch(error => {
                         this.showToast('Failed to create tender.', 'error');
                     });
+                },
+
+                toggleMaintenance() {
+                    if (this.maintenanceLoading) return;
+                    const action = this.maintenanceOn ? 'disable' : 'enable';
+                    const confirmMsg = this.maintenanceOn
+                        ? 'Bring the site back online? Users will regain access immediately.'
+                        : 'Enable maintenance mode? All users (except admins) will see the maintenance screen.';
+                    if (!confirm(confirmMsg)) return;
+
+                    this.maintenanceLoading = true;
+                    fetch(`/admin/maintenance/${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        this.maintenanceOn = (data.status === 'enabled');
+                        this.showToast(
+                            this.maintenanceOn ? 'Maintenance mode enabled.' : 'Site is back online!',
+                            this.maintenanceOn ? 'error' : 'success'
+                        );
+                    })
+                    .catch(() => this.showToast('Something went wrong.', 'error'))
+                    .finally(() => { this.maintenanceLoading = false; });
                 },
 
                 showToast(message, type = 'success') {

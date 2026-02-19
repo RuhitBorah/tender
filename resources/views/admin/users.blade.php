@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :padding="false">
     <div x-data="userManagement()" x-init="init()" class="min-h-screen bg-gray-50 pb-12">
         
         <!-- Toast Notification -->
@@ -40,7 +40,7 @@
         </div>
 
         <!-- Dark Gradient Hero Header -->
-        <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-12">
+        <div class="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 pb-32 pt-32">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center mb-8">
                     <div>

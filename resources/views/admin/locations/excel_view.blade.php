@@ -169,6 +169,11 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <div class="mt-4">
+                {{ $tenders->links() }}
+            </div>
         </div>
 
         <!-- Preview Modal -->
@@ -243,7 +248,7 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.data('excelGrid', () => ({
                     rows: [],
-                    originalData: @json($tenders),
+                    originalData: @json($tenders->items()),
                     unsavedChanges: false,
                     saveUrl: "{{ isset($subdistrict) ? route('admin.locations.subdistrict.excel.update', [$district, $subdistrict]) : route('admin.locations.excel.update', $district) }}",
                     subdistricts: @json($district->subdistricts),

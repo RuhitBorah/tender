@@ -15,11 +15,11 @@ class LocationExcelController extends Controller
     public function index(District $district)
     {
         $district->load('subdistricts');
-        // Fetch tenders sorted by ID desc
+        // Fetch tenders sorted by ID desc - PAGINATED for performance
         $tenders = Tender::where('district_id', $district->id)
             ->with('subdistrict')
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(50); // Server-side pagination for 10M records scalability
 
         return view('admin.locations.excel_view', compact('district', 'tenders'));
     }
@@ -113,10 +113,11 @@ class LocationExcelController extends Controller
             abort(404);
         }
 
+        // Fetch tenders sorted by ID desc - PAGINATED for performance
         $tenders = Tender::where('subdistrict_id', $subdistrict->id)
             ->with('subdistrict')
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(50); // Server-side pagination for 10M records scalability
 
         return view('admin.locations.excel_view', compact('district', 'subdistrict', 'tenders'));
     }

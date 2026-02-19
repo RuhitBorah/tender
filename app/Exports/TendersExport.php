@@ -4,11 +4,11 @@ namespace App\Exports;
 
 use App\Models\District;
 use App\Models\Tender;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class TendersExport implements FromCollection, WithHeadings, WithMapping
+class TendersExport implements FromQuery, WithHeadings, WithMapping
 {
     protected $district;
     protected $subdistrict;
@@ -19,15 +19,15 @@ class TendersExport implements FromCollection, WithHeadings, WithMapping
         $this->subdistrict = $subdistrict;
     }
 
-    public function collection()
+    public function query()
     {
-        $query = Tender::where('district_id', $this->district->id);
+        $query = Tender::query()->where('district_id', $this->district->id);
         
         if ($this->subdistrict) {
             $query->where('subdistrict_id', $this->subdistrict->id);
         }
 
-        return $query->with('subdistrict')->get();
+        return $query->with('subdistrict');
     }
 
     public function headings(): array

@@ -15,7 +15,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-slate-950">
+        <div class="min-h-screen bg-gray-50">
             @include('layouts.navigation', ['maxWidth' => $maxWidth ?? 'max-w-7xl'])
 
             <!-- Page Heading -->
@@ -32,5 +32,6 @@
                 {{ $slot }}
             </main>
         </div>
+        @stack('scripts')
     </body>
 </html>

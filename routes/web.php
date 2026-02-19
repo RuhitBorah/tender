@@ -8,6 +8,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Public maintenance page — always reachable so redirected users can see it
+Route::get('/maintenance', function () {
+    return view('errors.maintenance');
+})->name('maintenance');
+
 
 Route::get('/u/{username}/dashboard', function ($username) {
     $user = Auth::user();
@@ -76,6 +81,20 @@ Route::middleware('auth')->group(function () {
     // Admin Routes — guarded by role check middleware
     Route::prefix('admin')->name('admin.')->middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])->group(function () {
         
+        // Maintenance Mode Toggle
+        Route::post('/maintenance/enable', function () {
+            file_put_contents(storage_path('framework/maintenance.lock'), json_encode([
+                'enabled_at' => now()->toIso8601String(),
+                'message'    => 'The site is currently undergoing maintenance.',
+            ]));
+            return response()->json(['status' => 'enabled']);
+        })->name('maintenance.enable');
+
+        Route::post('/maintenance/disable', function () {
+            @unlink(storage_path('framework/maintenance.lock'));
+            return response()->json(['status' => 'disabled']);
+        })->name('maintenance.disable');
+
         // Dashboard
         Route::get('/dashboard', function () {
             $stats = [
